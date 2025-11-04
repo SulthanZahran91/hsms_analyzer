@@ -1,0 +1,7 @@
+ts_iso,dir,s,f,wbit,sysbytes,ceid,body_json
+2025-11-03T10:00:00.000Z,H->E,1,3,1,20001,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""VariableRequest"",""vids"":[501,502]}}"
+2025-11-03T10:00:00.050Z,E->H,1,4,0,20001,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""VariableResponse"",""values"":[{""vid"":501,""value"":""A001""},{""vid"":502,""value"":""100""}]}}"
+2025-11-03T10:00:01.000Z,H->E,1,3,1,20002,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""VariableRequest"",""vids"":[503]}}"
+2025-11-03T10:00:02.000Z,H->E,1,3,1,20003,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""VariableRequest"",""vids"":[504]}}"
+2025-11-03T10:00:02.050Z,E->H,1,4,0,20003,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""VariableResponse"",""values"":[{""vid"":504,""value"":""50""}]}}"
+

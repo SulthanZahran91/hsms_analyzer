@@ -1,0 +1,16 @@
+{"ts_iso":"2025-11-03T11:00:00.000Z","dir":"H->E","s":1,"f":13,"wbit":1,"sysbytes":30001,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"EstablishComm"}}}
+{"ts_iso":"2025-11-03T11:00:00.020Z","dir":"E->H","s":1,"f":14,"wbit":0,"sysbytes":30001,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"EstablishCommAck"}}}
+{"ts_iso":"2025-11-03T11:00:01.000Z","dir":"E->H","s":6,"f":11,"wbit":0,"sysbytes":30002,"ceid":101,"body_json":{"secs_tree":{"t":"L","items":[{"t":"U4","v":101}]},"semantic":{"kind":"EventReport","ceid":101,"ceid_name":"AlarmSet"}}}
+{"ts_iso":"2025-11-03T11:00:02.000Z","dir":"H->E","s":2,"f":13,"wbit":1,"sysbytes":30003,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"EquipmentConstantRequest","ecids":[10,20]}}}
+{"ts_iso":"2025-11-03T11:00:02.100Z","dir":"E->H","s":2,"f":14,"wbit":0,"sysbytes":30003,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"EquipmentConstantResponse"}}}
+{"ts_iso":"2025-11-03T11:00:03.000Z","dir":"E->H","s":6,"f":11,"wbit":0,"sysbytes":30004,"ceid":102,"body_json":{"secs_tree":{"t":"L","items":[{"t":"U4","v":102}]},"semantic":{"kind":"EventReport","ceid":102,"ceid_name":"AlarmCleared"}}}
+{"ts_iso":"2025-11-03T11:00:04.000Z","dir":"H->E","s":1,"f":3,"wbit":1,"sysbytes":30005,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"VariableRequest","vids":[1001,1002]}}}
+{"ts_iso":"2025-11-03T11:00:04.050Z","dir":"E->H","s":1,"f":4,"wbit":0,"sysbytes":30005,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"VariableResponse","values":[{"vid":1001,"value":"ONLINE"},{"vid":1002,"value":"IDLE"}]}}}
+{"ts_iso":"2025-11-03T11:00:05.000Z","dir":"E->H","s":6,"f":11,"wbit":0,"sysbytes":30006,"ceid":201,"body_json":{"secs_tree":{"t":"L","items":[{"t":"U4","v":201}]},"semantic":{"kind":"EventReport","ceid":201,"ceid_name":"LotStart"}}}
+{"ts_iso":"2025-11-03T11:00:06.000Z","dir":"H->E","s":2,"f":41,"wbit":1,"sysbytes":30007,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"RemoteCommand","rcmd":"START","params":[{"cpname":"LOTID","cpval":"LOT123"}]}}}
+{"ts_iso":"2025-11-03T11:00:06.100Z","dir":"E->H","s":2,"f":42,"wbit":0,"sysbytes":30007,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"RemoteCommandAck"}}}
+{"ts_iso":"2025-11-03T11:00:07.000Z","dir":"E->H","s":6,"f":11,"wbit":0,"sysbytes":30008,"ceid":202,"body_json":{"secs_tree":{"t":"L","items":[{"t":"U4","v":202}]},"semantic":{"kind":"EventReport","ceid":202,"ceid_name":"ProcessStart"}}}
+{"ts_iso":"2025-11-03T11:00:08.000Z","dir":"E->H","s":1,"f":1,"wbit":0,"sysbytes":30009,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"StatusUpdate"}}}
+{"ts_iso":"2025-11-03T11:00:09.000Z","dir":"H->E","s":1,"f":1,"wbit":1,"sysbytes":30010,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"AreYouThere"}}}
+{"ts_iso":"2025-11-03T11:00:09.010Z","dir":"E->H","s":1,"f":2,"wbit":0,"sysbytes":30010,"ceid":0,"body_json":{"secs_tree":{"t":"L","items":[]},"semantic":{"kind":"OnLine"}}}
+

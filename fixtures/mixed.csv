@@ -1,0 +1,7 @@
+ts_iso,dir,s,f,wbit,sysbytes,ceid,body_json
+2025-11-03T11:00:00.000Z,H->E,1,13,1,30001,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""EstablishComm""}}"
+2025-11-03T11:00:00.020Z,E->H,1,14,0,30001,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""EstablishCommAck""}}"
+2025-11-03T11:00:01.000Z,E->H,6,11,0,30002,101,"{""secs_tree"":{""t"":""L"",""items"":[{""t"":""U4"",""v"":101}]},""semantic"":{""kind"":""EventReport"",""ceid"":101,""ceid_name"":""AlarmSet""}}"
+2025-11-03T11:00:02.000Z,H->E,2,13,1,30003,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""EquipmentConstantRequest"",""ecids"":[10,20]}}"
+2025-11-03T11:00:02.100Z,E->H,2,14,0,30003,0,"{""secs_tree"":{""t"":""L"",""items"":[]},""semantic"":{""kind"":""EquipmentConstantResponse""}}"
+

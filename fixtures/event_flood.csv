@@ -1,0 +1,7 @@
+ts_iso,dir,s,f,wbit,sysbytes,ceid,body_json
+2025-11-03T09:00:00.100Z,E->H,6,11,0,10001,201,"{""secs_tree"":{""t"":""L"",""items"":[{""t"":""U4"",""v"":201}]},""semantic"":{""kind"":""EventReport"",""ceid"":201,""ceid_name"":""LotStart""}}"
+2025-11-03T09:00:01.200Z,E->H,6,11,0,10002,202,"{""secs_tree"":{""t"":""L"",""items"":[{""t"":""U4"",""v"":202}]},""semantic"":{""kind"":""EventReport"",""ceid"":202,""ceid_name"":""ProcessStart""}}"
+2025-11-03T09:00:02.300Z,E->H,6,11,0,10003,203,"{""secs_tree"":{""t"":""L"",""items"":[{""t"":""U4"",""v"":203}]},""semantic"":{""kind"":""EventReport"",""ceid"":203,""ceid_name"":""WaferStart""}}"
+2025-11-03T09:00:03.400Z,E->H,6,11,0,10004,204,"{""secs_tree"":{""t"":""L"",""items"":[{""t"":""U4"",""v"":204}]},""semantic"":{""kind"":""EventReport"",""ceid"":204,""ceid_name"":""StepStart""}}"
+2025-11-03T09:00:04.500Z,E->H,6,11,0,10005,205,"{""secs_tree"":{""t"":""L"",""items"":[{""t"":""U4"",""v"":205}]},""semantic"":{""kind"":""EventReport"",""ceid"":205,""ceid_name"":""StepEnd""}}"
+
