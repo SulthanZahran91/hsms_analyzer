@@ -27,5 +27,19 @@ pub enum ParseError {
     InvalidDirection(String),
     #[error("Missing body_json")]
     MissingBodyJson,
+    #[error("{0}")]
+    Custom(String),
+}
+
+impl From<String> for ParseError {
+    fn from(msg: String) -> Self {
+        ParseError::Custom(msg)
+    }
+}
+
+impl From<&str> for ParseError {
+    fn from(msg: &str) -> Self {
+        ParseError::Custom(msg.to_string())
+    }
 }
 
