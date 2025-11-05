@@ -8,6 +8,8 @@ pub struct SessionMeta {
     pub distinct_s: Vec<u8>,
     pub distinct_f: Vec<u8>,
     pub distinct_ceid: Vec<u32>,
+    pub distinct_vid: Vec<u32>,
+    pub distinct_rptid: Vec<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -28,6 +30,10 @@ pub struct FilterExpr {
     #[serde(default)]
     pub ceid: Vec<u32>,
     #[serde(default)]
+    pub vid: Vec<u32>,
+    #[serde(default)]
+    pub rptid: Vec<u32>,
+    #[serde(default)]
     pub text: String,
 }
 
@@ -43,6 +49,10 @@ pub struct TimeFilter {
 pub struct HighlightExpr {
     #[serde(default)]
     pub ceid: Vec<u32>,
+    #[serde(default)]
+    pub vid: Vec<u32>,
+    #[serde(default)]
+    pub rptid: Vec<u32>,
     #[serde(default)]
     pub sxfy: Vec<SxFy>,
     #[serde(default)]
@@ -73,6 +83,8 @@ pub struct ConvertedMessage {
     pub wbit: u8,
     pub sysbytes: u32,
     pub ceid: u32,
+    pub vid: u32,
+    pub rptid: u32,
     pub row_id: u32,
     pub body_json: serde_json::Value,
 }
@@ -97,6 +109,8 @@ impl ConvertedMessage {
             wbit: msg.wbit,
             sysbytes: msg.sysbytes,
             ceid: msg.ceid,
+            vid: msg.vid,
+            rptid: msg.rptid,
             row_id,
             body_json: msg.body_json,
         })

@@ -30,12 +30,40 @@ export function FilterBar() {
       setFilter({ ceid: [] });
       return;
     }
-    
+
     const ceids = value
       .split(',')
       .map((s) => parseInt(s.trim()))
       .filter((n) => !isNaN(n));
     setFilter({ ceid: ceids });
+  };
+
+  const handleVidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '') {
+      setFilter({ vid: [] });
+      return;
+    }
+
+    const vids = value
+      .split(',')
+      .map((s) => parseInt(s.trim()))
+      .filter((n) => !isNaN(n));
+    setFilter({ vid: vids });
+  };
+
+  const handleRptidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '') {
+      setFilter({ rptid: [] });
+      return;
+    }
+
+    const rptids = value
+      .split(',')
+      .map((s) => parseInt(s.trim()))
+      .filter((n) => !isNaN(n));
+    setFilter({ rptid: rptids });
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,9 +116,11 @@ export function FilterBar() {
       s: [],
       f: [],
       ceid: [],
+      vid: [],
+      rptid: [],
       text: '',
     });
-    setHighlight({ sxfy: [], ceid: [] });
+    setHighlight({ sxfy: [], ceid: [], vid: [], rptid: [] });
     setTextInput(''); // Also reset local text input state
     setSxfyInput(''); // Also reset SxFy input state
   };
@@ -184,6 +214,26 @@ export function FilterBar() {
           value={filter.ceid.join(', ')}
           onChange={handleCeidChange}
           placeholder="e.g., 201, 202, 203"
+        />
+      </div>
+
+      <div className="filter-section">
+        <label>VID (comma-separated):</label>
+        <input
+          type="text"
+          value={filter.vid.join(', ')}
+          onChange={handleVidChange}
+          placeholder="e.g., 1, 2, 3"
+        />
+      </div>
+
+      <div className="filter-section">
+        <label>RPTID (comma-separated):</label>
+        <input
+          type="text"
+          value={filter.rptid.join(', ')}
+          onChange={handleRptidChange}
+          placeholder="e.g., 101, 102, 103"
         />
       </div>
 

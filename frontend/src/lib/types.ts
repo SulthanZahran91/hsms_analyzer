@@ -7,6 +7,8 @@ export interface SessionMeta {
   distinct_s: number[];
   distinct_f: number[];
   distinct_ceid: number[];
+  distinct_vid: number[];
+  distinct_rptid: number[];
 }
 
 export interface FilterExpr {
@@ -18,11 +20,15 @@ export interface FilterExpr {
   s: number[];
   f: number[];
   ceid: number[];
+  vid: number[];
+  rptid: number[];
   text: string;
 }
 
 export interface HighlightExpr {
   ceid: number[];
+  vid: number[];
+  rptid: number[];
   sxfy: Array<{ s: number; f: number }>;
   unanswered: boolean;
 }
@@ -51,6 +57,8 @@ export interface MessageRow {
   wbit: number;
   sysbytes: number;
   ceid: number;
+  vid: number;
+  rptid: number;
   row_id: number;
 }
 

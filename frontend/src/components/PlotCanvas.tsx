@@ -133,6 +133,8 @@ export function PlotCanvas({
       // Check if this row should be highlighted
       const isHighlighted = highlight ? (
         (row.ceid > 0 && highlight.ceid.includes(row.ceid)) ||
+        (row.vid > 0 && highlight.vid.includes(row.vid)) ||
+        (row.rptid > 0 && highlight.rptid.includes(row.rptid)) ||
         highlight.sxfy.some(p => p.s === row.s && p.f === row.f)
       ) : false;
       
@@ -191,11 +193,26 @@ export function PlotCanvas({
       ctx.textAlign = 'center';
       ctx.fillText(`S${row.s}F${row.f}`, labelX, labelY);
 
-      // Draw CEID indicator
-      if (row.ceid > 0) {
-        ctx.fillStyle = '#ff6b6b';
+      // Draw CEID, VID, and RPTID indicators horizontally with different colors
+      const indicators = [];
+      if (row.ceid > 0) indicators.push({ text: `[C:${row.ceid}]`, color: '#ff6b6b' }); // Red for CEID
+      if (row.rptid > 0) indicators.push({ text: `[R:${row.rptid}]`, color: '#4ecdc4' }); // Teal for RPTID
+      if (row.vid > 0) indicators.push({ text: `[V:${row.vid}]`, color: '#95e1d3' }); // Light green for VID
+
+      if (indicators.length > 0) {
         ctx.font = '9px sans-serif';
-        ctx.fillText(`[${row.ceid}]`, labelX, labelY + 12);
+        const totalText = indicators.map(i => i.text).join(' ');
+        const textWidth = ctx.measureText(totalText).width;
+        let currentX = labelX - textWidth / 2;
+
+        indicators.forEach((indicator, i) => {
+          ctx.fillStyle = indicator.color;
+          ctx.fillText(indicator.text, currentX, labelY + 12);
+          currentX += ctx.measureText(indicator.text).width;
+          if (i < indicators.length - 1) {
+            currentX += ctx.measureText(' ').width;
+          }
+        });
       }
 
       // Draw timestamp on left margin

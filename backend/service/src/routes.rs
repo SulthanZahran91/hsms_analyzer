@@ -303,7 +303,9 @@ fn apply_filter(
     let wbit_arr = batch.column(4).as_any().downcast_ref::<UInt8Array>().unwrap();
     let sysbytes_arr = batch.column(5).as_any().downcast_ref::<UInt32Array>().unwrap();
     let ceid_arr = batch.column(6).as_any().downcast_ref::<UInt32Array>().unwrap();
-    let row_id_arr = batch.column(7).as_any().downcast_ref::<UInt32Array>().unwrap();
+    let vid_arr = batch.column(7).as_any().downcast_ref::<UInt32Array>().unwrap();
+    let rptid_arr = batch.column(8).as_any().downcast_ref::<UInt32Array>().unwrap();
+    let row_id_arr = batch.column(9).as_any().downcast_ref::<UInt32Array>().unwrap();
     
     // Prepare text search (case-insensitive)
     let search_text = if !filter.text.is_empty() {
@@ -320,22 +322,32 @@ fn apply_filter(
         let s = s_arr.value(i);
         let f = f_arr.value(i);
         let ceid = ceid_arr.value(i);
+        let vid = vid_arr.value(i);
+        let rptid = rptid_arr.value(i);
         let row_id = row_id_arr.value(i);
-        
+
         // Apply filters
         if filter.dir != 0 && filter.dir != dir {
             continue;
         }
-        
+
         if !filter.s.is_empty() && !filter.s.contains(&s) {
             continue;
         }
-        
+
         if !filter.f.is_empty() && !filter.f.contains(&f) {
             continue;
         }
-        
+
         if !filter.ceid.is_empty() && !filter.ceid.contains(&ceid) {
+            continue;
+        }
+
+        if !filter.vid.is_empty() && !filter.vid.contains(&vid) {
+            continue;
+        }
+
+        if !filter.rptid.is_empty() && !filter.rptid.contains(&rptid) {
             continue;
         }
         
@@ -379,6 +391,8 @@ fn apply_filter(
             wbit: wbit_arr.value(i),
             sysbytes: sysbytes_arr.value(i),
             ceid,
+            vid,
+            rptid,
             row_id,
             body_json: serde_json::Value::Null, // Not needed for search
         });

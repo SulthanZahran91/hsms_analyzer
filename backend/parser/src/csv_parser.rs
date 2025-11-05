@@ -14,6 +14,10 @@ struct CsvRecord {
     sysbytes: u32,
     #[serde(default)]
     ceid: u32,
+    #[serde(default)]
+    vid: u32,
+    #[serde(default)]
+    rptid: u32,
     body_json: String,
 }
 
@@ -73,6 +77,8 @@ impl Parser for CsvParser {
                 wbit: record.wbit,
                 sysbytes: record.sysbytes,
                 ceid: record.ceid,
+                vid: record.vid,
+                rptid: record.rptid,
                 body_json,
             });
         }

@@ -20,6 +20,8 @@ pub struct ArrowBuilder {
     wbit: Vec<u8>,
     sysbytes: Vec<u32>,
     ceid: Vec<u32>,
+    vid: Vec<u32>,
+    rptid: Vec<u32>,
     row_id: Vec<u32>,
 }
 
@@ -33,6 +35,8 @@ impl ArrowBuilder {
             wbit: Vec::with_capacity(CHUNK_SIZE),
             sysbytes: Vec::with_capacity(CHUNK_SIZE),
             ceid: Vec::with_capacity(CHUNK_SIZE),
+            vid: Vec::with_capacity(CHUNK_SIZE),
+            rptid: Vec::with_capacity(CHUNK_SIZE),
             row_id: Vec::with_capacity(CHUNK_SIZE),
         }
     }
@@ -45,6 +49,8 @@ impl ArrowBuilder {
         self.wbit.push(msg.wbit);
         self.sysbytes.push(msg.sysbytes);
         self.ceid.push(msg.ceid);
+        self.vid.push(msg.vid);
+        self.rptid.push(msg.rptid);
         self.row_id.push(msg.row_id);
     }
     
@@ -64,12 +70,14 @@ impl ArrowBuilder {
         self.wbit.clear();
         self.sysbytes.clear();
         self.ceid.clear();
+        self.vid.clear();
+        self.rptid.clear();
         self.row_id.clear();
     }
     
     pub fn build_batch(&self) -> Result<RecordBatch, arrow::error::ArrowError> {
         let schema = get_arrow_schema();
-        
+
         let columns: Vec<ArrayRef> = vec![
             Arc::new(Int64Array::from(self.ts_ns.clone())),
             Arc::new(Int8Array::from(self.dir.clone())),
@@ -78,9 +86,11 @@ impl ArrowBuilder {
             Arc::new(UInt8Array::from(self.wbit.clone())),
             Arc::new(UInt32Array::from(self.sysbytes.clone())),
             Arc::new(UInt32Array::from(self.ceid.clone())),
+            Arc::new(UInt32Array::from(self.vid.clone())),
+            Arc::new(UInt32Array::from(self.rptid.clone())),
             Arc::new(UInt32Array::from(self.row_id.clone())),
         ];
-        
+
         RecordBatch::try_new(schema, columns)
     }
 }
@@ -94,6 +104,8 @@ pub fn get_arrow_schema() -> Arc<Schema> {
         Field::new("wbit", DataType::UInt8, false),
         Field::new("sysbytes", DataType::UInt32, false),
         Field::new("ceid", DataType::UInt32, false),
+        Field::new("vid", DataType::UInt32, false),
+        Field::new("rptid", DataType::UInt32, false),
         Field::new("row_id", DataType::UInt32, false),
     ]))
 }
@@ -116,6 +128,8 @@ pub struct MetaCollector {
     pub distinct_s: HashSet<u8>,
     pub distinct_f: HashSet<u8>,
     pub distinct_ceid: HashSet<u32>,
+    pub distinct_vid: HashSet<u32>,
+    pub distinct_rptid: HashSet<u32>,
 }
 
 impl MetaCollector {
@@ -127,6 +141,8 @@ impl MetaCollector {
             distinct_s: HashSet::new(),
             distinct_f: HashSet::new(),
             distinct_ceid: HashSet::new(),
+            distinct_vid: HashSet::new(),
+            distinct_rptid: HashSet::new(),
         }
     }
     
@@ -139,18 +155,30 @@ impl MetaCollector {
         if msg.ceid > 0 {
             self.distinct_ceid.insert(msg.ceid);
         }
+        if msg.vid > 0 {
+            self.distinct_vid.insert(msg.vid);
+        }
+        if msg.rptid > 0 {
+            self.distinct_rptid.insert(msg.rptid);
+        }
     }
     
     pub fn into_meta(self) -> SessionMeta {
         let mut s_vec: Vec<u8> = self.distinct_s.into_iter().collect();
         s_vec.sort_unstable();
-        
+
         let mut f_vec: Vec<u8> = self.distinct_f.into_iter().collect();
         f_vec.sort_unstable();
-        
+
         let mut ceid_vec: Vec<u32> = self.distinct_ceid.into_iter().collect();
         ceid_vec.sort_unstable();
-        
+
+        let mut vid_vec: Vec<u32> = self.distinct_vid.into_iter().collect();
+        vid_vec.sort_unstable();
+
+        let mut rptid_vec: Vec<u32> = self.distinct_rptid.into_iter().collect();
+        rptid_vec.sort_unstable();
+
         SessionMeta {
             row_count: self.row_count,
             t_min_ns: if self.row_count > 0 { self.t_min_ns } else { 0 },
@@ -158,6 +186,8 @@ impl MetaCollector {
             distinct_s: s_vec,
             distinct_f: f_vec,
             distinct_ceid: ceid_vec,
+            distinct_vid: vid_vec,
+            distinct_rptid: rptid_vec,
         }
     }
 }

@@ -40,6 +40,8 @@ function applyFilter(table: Table, filter: FilterExpr): ComputeResult {
   const sCol = table.getChild('s')!;
   const fCol = table.getChild('f')!;
   const ceidCol = table.getChild('ceid')!;
+  const vidCol = table.getChild('vid')!;
+  const rptidCol = table.getChild('rptid')!;
 
   const distinctS = new Set<number>();
   const distinctF = new Set<number>();
@@ -51,12 +53,16 @@ function applyFilter(table: Table, filter: FilterExpr): ComputeResult {
     const s = sCol.get(i) as number;
     const f = fCol.get(i) as number;
     const ceid = ceidCol.get(i) as number;
+    const vid = vidCol.get(i) as number;
+    const rptid = rptidCol.get(i) as number;
 
     // Apply filters
     if (filter.dir !== 0 && filter.dir !== dir) continue;
     if (filter.s.length > 0 && !filter.s.includes(s)) continue;
     if (filter.f.length > 0 && !filter.f.includes(f)) continue;
     if (filter.ceid.length > 0 && !filter.ceid.includes(ceid)) continue;
+    if (filter.vid.length > 0 && !filter.vid.includes(vid)) continue;
+    if (filter.rptid.length > 0 && !filter.rptid.includes(rptid)) continue;
     
     if (filter.time.from_ns > 0 && Number(ts_ns) < filter.time.from_ns) continue;
     if (filter.time.to_ns > 0 && Number(ts_ns) > filter.time.to_ns) continue;
@@ -87,6 +93,8 @@ function extractRows(table: Table): ComputeResult {
   const wbitCol = table.getChild('wbit')!;
   const sysbytesCol = table.getChild('sysbytes')!;
   const ceidCol = table.getChild('ceid')!;
+  const vidCol = table.getChild('vid')!;
+  const rptidCol = table.getChild('rptid')!;
   const rowIdCol = table.getChild('row_id')!;
 
   for (let i = 0; i < rowCount; i++) {
@@ -98,6 +106,8 @@ function extractRows(table: Table): ComputeResult {
       wbit: wbitCol.get(i) as number,
       sysbytes: sysbytesCol.get(i) as number,
       ceid: ceidCol.get(i) as number,
+      vid: vidCol.get(i) as number,
+      rptid: rptidCol.get(i) as number,
       row_id: rowIdCol.get(i) as number,
     });
   }

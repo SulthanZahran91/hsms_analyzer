@@ -10,6 +10,10 @@ pub struct ParsedMessage {
     pub sysbytes: u32,
     #[serde(default)]
     pub ceid: u32,
+    #[serde(default)]
+    pub vid: u32,
+    #[serde(default)]
+    pub rptid: u32,
     pub body_json: serde_json::Value,
 }
 

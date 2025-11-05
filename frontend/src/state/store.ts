@@ -43,11 +43,15 @@ const initialFilter: FilterExpr = {
   s: [],
   f: [],
   ceid: [],
+  vid: [],
+  rptid: [],
   text: '',
 };
 
 const initialHighlight: HighlightExpr = {
   ceid: [],
+  vid: [],
+  rptid: [],
   sxfy: [],
   unanswered: false,
 };

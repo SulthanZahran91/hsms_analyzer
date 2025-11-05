@@ -51,8 +51,14 @@ export function DataTable({ rows, selectedRowId, timezone, onRowSelect }: DataTa
         <div className="table-cell" style={{ width: '60px' }}>
           F
         </div>
-        <div className="table-cell" style={{ width: '100px' }}>
+        <div className="table-cell" style={{ width: '80px' }}>
           CEID
+        </div>
+        <div className="table-cell" style={{ width: '80px' }}>
+          VID
+        </div>
+        <div className="table-cell" style={{ width: '80px' }}>
+          RPTID
         </div>
         <div className="table-cell" style={{ width: '100px' }}>
           Sysbytes
@@ -89,8 +95,14 @@ export function DataTable({ rows, selectedRowId, timezone, onRowSelect }: DataTa
                 <div className="table-cell" style={{ width: '60px' }}>
                   {row.f}
                 </div>
-                <div className="table-cell" style={{ width: '100px' }}>
+                <div className="table-cell" style={{ width: '80px' }}>
                   {row.ceid || '-'}
+                </div>
+                <div className="table-cell" style={{ width: '80px' }}>
+                  {row.vid || '-'}
+                </div>
+                <div className="table-cell" style={{ width: '80px' }}>
+                  {row.rptid || '-'}
                 </div>
                 <div className="table-cell" style={{ width: '100px' }}>
                   {row.sysbytes}
