@@ -3,7 +3,7 @@ mod storage;
 mod models;
 mod arrow_io;
 
-use axum::Router;
+use axum::{Router, extract::DefaultBodyLimit};
 use tower_http::cors::{CorsLayer, Any};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -25,9 +25,11 @@ async fn main() {
         .allow_methods(Any)
         .allow_headers(Any);
 
-    // Build router
+    // Build router with increased body limit for large file uploads
+    // Set limit to 1 GB to handle large HSMS log files
     let app = Router::new()
         .merge(routes::create_routes())
+        .layer(DefaultBodyLimit::max(1024 * 1024 * 1024)) // 1 GB limit
         .layer(cors);
 
     // Start server
