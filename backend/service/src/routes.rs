@@ -13,6 +13,7 @@ use arrow::ipc::writer::StreamWriter;
 use serde::Deserialize;
 use std::sync::Arc;
 use std::io::Cursor;
+use tracing::{info, debug, warn, error, instrument};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -40,50 +41,84 @@ async fn health_check() -> impl IntoResponse {
     (StatusCode::OK, "ok")
 }
 
+#[instrument(skip(state, multipart))]
 async fn create_session(
     State(state): State<AppState>,
     mut multipart: Multipart,
 ) -> Result<Json<CreateSessionResponse>, (StatusCode, String)> {
+    info!("Received file upload request");
+
     // Get the uploaded file
     let mut file_data = Vec::new();
     let mut filename = String::new();
-    
+
     while let Some(field) = multipart.next_field().await
-        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Multipart error: {}", e)))? 
+        .map_err(|e| {
+            error!("Multipart error: {}", e);
+            (StatusCode::BAD_REQUEST, format!("Multipart error: {}", e))
+        })?
     {
         if field.name() == Some("file") {
             filename = field.file_name().unwrap_or("unknown").to_string();
+            info!("Receiving file: {}", filename);
+
             let data = field.bytes().await
-                .map_err(|e| (StatusCode::BAD_REQUEST, format!("Failed to read file: {}", e)))?;
+                .map_err(|e| {
+                    error!("Failed to read file data: {}", e);
+                    (StatusCode::BAD_REQUEST, format!("Failed to read file: {}", e))
+                })?;
             file_data = data.to_vec();
+            info!("File data received: {} bytes", file_data.len());
         }
     }
-    
+
     if file_data.is_empty() {
+        error!("No file data provided in request");
         return Err((StatusCode::BAD_REQUEST, "No file provided".to_string()));
     }
-    
+
     // Create session
+    info!("Creating new session");
     let session_id = state.storage.create_session()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to create session: {}", e)))?;
-    
+        .map_err(|e| {
+            error!("Failed to create session: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to create session: {}", e))
+        })?;
+    info!("Created session: {}", session_id);
+
     // Use parser registry to auto-detect format
-    let cursor = Cursor::new(file_data);  // Move file_data into cursor
+    let cursor = Cursor::new(file_data);
     let registry = parser::ParserRegistry::new();
-    
+
+    info!("Starting parse with filename hint: {}", filename);
     let parsed = registry.parse_with_hint(Box::new(cursor), &filename)
-        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Parse error: {}", e)))?;
-    
+        .map_err(|e| {
+            error!("Parse error for file '{}': {}", filename, e);
+            (StatusCode::BAD_REQUEST, format!("Parse error: {}", e))
+        })?;
+
+    info!("Successfully parsed {} messages", parsed.len());
+
+    debug!("Converting parsed messages to internal format");
     let messages: Vec<ConvertedMessage> = parsed.into_iter()
         .enumerate()
         .map(|(idx, msg)| ConvertedMessage::from_parsed(msg, idx as u32))
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Conversion error: {}", e)))?;
-    
+        .map_err(|e| {
+            error!("Message conversion error: {}", e);
+            (StatusCode::BAD_REQUEST, format!("Conversion error: {}", e))
+        })?;
+
+    info!("Converted {} messages, starting ingestion", messages.len());
+
     // Ingest messages
     ingest_messages(&state.storage, &session_id, messages.into_iter())
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Ingest failed: {}", e)))?;
-    
+        .map_err(|e| {
+            error!("Ingest failed for session {}: {}", session_id, e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Ingest failed: {}", e))
+        })?;
+
+    info!("Successfully ingested messages for session: {}", session_id);
     Ok(Json(CreateSessionResponse { session_id }))
 }
 
@@ -113,14 +148,24 @@ fn default_limit() -> usize {
     50_000
 }
 
+#[instrument(skip(state))]
 async fn get_messages_arrow(
     State(state): State<AppState>,
     Path(session_id): Path<String>,
     Query(query): Query<MessagesQuery>,
 ) -> Result<Response, (StatusCode, String)> {
+    info!("Fetching messages for session: {}", session_id);
+    debug!("Query params: from_ns={}, to_ns={}, limit={}, cursor={}",
+        query.from_ns, query.to_ns, query.limit, query.cursor);
+
     // Read all chunks and concatenate
     let chunks = state.storage.list_chunks(&session_id)
-        .map_err(|e| (StatusCode::NOT_FOUND, format!("Session not found: {}", e)))?;
+        .map_err(|e| {
+            error!("Session not found or error listing chunks: {}", e);
+            (StatusCode::NOT_FOUND, format!("Session not found: {}", e))
+        })?;
+
+    info!("Found {} chunks for session {}", chunks.len(), session_id);
     
     let mut all_batches = Vec::new();
     
@@ -167,14 +212,24 @@ async fn get_messages_arrow(
         .unwrap())
 }
 
+#[instrument(skip(state, search_req), fields(session_id = %session_id))]
 async fn search_messages(
     State(state): State<AppState>,
     Path(session_id): Path<String>,
     Json(search_req): Json<SearchRequest>,
 ) -> Result<Response, (StatusCode, String)> {
+    info!("Search request for session: {}", session_id);
+    debug!("Search filter: dir={}, s={:?}, f={:?}, text='{}'",
+        search_req.filter.dir, search_req.filter.s, search_req.filter.f, search_req.filter.text);
+
     // Read all chunks
     let chunks = state.storage.list_chunks(&session_id)
-        .map_err(|e| (StatusCode::NOT_FOUND, format!("Session not found: {}", e)))?;
+        .map_err(|e| {
+            error!("Session not found or error listing chunks: {}", e);
+            (StatusCode::NOT_FOUND, format!("Session not found: {}", e))
+        })?;
+
+    debug!("Processing {} chunks for search", chunks.len());
     
     let mut builder = ArrowBuilder::new();
     
