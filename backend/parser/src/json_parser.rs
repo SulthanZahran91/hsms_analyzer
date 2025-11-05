@@ -1,5 +1,6 @@
 use crate::{ParsedMessage, ParseError, base_parser::Parser};
 use std::io::Read;
+use tracing::{info, error};
 
 /// JSON parser - handles regular JSON array format
 /// Example: [{"ts_iso": "...", ...}, {"ts_iso": "...", ...}]
@@ -9,25 +10,40 @@ impl Parser for JsonParser {
     fn name(&self) -> &'static str {
         "json"
     }
-    
+
     fn extensions(&self) -> &'static [&'static str] {
         &["json"]
     }
-    
-    fn can_parse(&self, data: &[u8]) -> bool {
+
+    fn can_parse_impl(&self, data: &[u8]) -> bool {
         let sample = std::str::from_utf8(data).unwrap_or("");
         let trimmed = sample.trim();
-        
+
         // Check if it's a JSON array
         trimmed.starts_with('[')
     }
-    
+
     fn parse(&self, mut reader: Box<dyn Read>) -> Result<Vec<ParsedMessage>, ParseError> {
+        info!("Starting JSON array parsing");
         let mut buffer = Vec::new();
-        reader.read_to_end(&mut buffer)?;
-        
-        let messages: Vec<ParsedMessage> = serde_json::from_slice(&buffer)?;
-        Ok(messages)
+
+        if let Err(e) = reader.read_to_end(&mut buffer) {
+            error!("Failed to read JSON data: {}", e);
+            return Err(e.into());
+        }
+
+        info!("Read {} bytes of JSON data", buffer.len());
+
+        match serde_json::from_slice::<Vec<ParsedMessage>>(&buffer) {
+            Ok(messages) => {
+                info!("JSON parsing complete: {} messages parsed", messages.len());
+                Ok(messages)
+            }
+            Err(e) => {
+                error!("Failed to parse JSON array: {}", e);
+                Err(e.into())
+            }
+        }
     }
 }
 
