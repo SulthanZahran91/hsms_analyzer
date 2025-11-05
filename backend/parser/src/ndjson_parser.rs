@@ -1,6 +1,5 @@
 use crate::{ParsedMessage, ParseError, base_parser::Parser};
 use std::io::{BufRead, BufReader, Read};
-use tracing::{debug, info, warn, error};
 
 /// NDJSON parser - handles newline-delimited JSON format
 pub struct NdjsonParser;
@@ -9,64 +8,45 @@ impl Parser for NdjsonParser {
     fn name(&self) -> &'static str {
         "ndjson"
     }
-
+    
     fn extensions(&self) -> &'static [&'static str] {
         &["ndjson", "jsonl"]
     }
-
-    fn can_parse_impl(&self, data: &[u8]) -> bool {
+    
+    fn can_parse(&self, data: &[u8]) -> bool {
         let sample = std::str::from_utf8(data).unwrap_or("");
         let trimmed = sample.trim();
-
+        
         // Check if it starts with { and has multiple lines
         if !trimmed.starts_with('{') {
             return false;
         }
-
+        
         // Check if first line is valid JSON object
         if let Some(first_line) = trimmed.lines().next() {
-            first_line.trim_end().ends_with('}') &&
+            first_line.trim_end().ends_with('}') && 
             serde_json::from_str::<serde_json::Value>(first_line).is_ok()
         } else {
             false
         }
     }
-
+    
     fn parse(&self, reader: Box<dyn Read>) -> Result<Vec<ParsedMessage>, ParseError> {
-        info!("Starting NDJSON parsing");
         let buf_reader = BufReader::new(reader);
         let mut messages = Vec::new();
-        let mut line_num = 0;
-
+        
         for line_result in buf_reader.lines() {
-            line_num += 1;
-            let line = match line_result {
-                Ok(l) => l,
-                Err(e) => {
-                    error!("Failed to read line {}: {}", line_num, e);
-                    return Err(e.into());
-                }
-            };
+            let line = line_result?;
             let line = line.trim();
-
+            
             if line.is_empty() {
                 continue;
             }
-
-            match serde_json::from_str::<ParsedMessage>(&line) {
-                Ok(msg) => {
-                    debug!("Parsed message {} successfully (s={}, f={})", line_num, msg.s, msg.f);
-                    messages.push(msg);
-                }
-                Err(e) => {
-                    error!("Failed to parse JSON on line {}: {}", line_num, e);
-                    warn!("Problematic line content: {}", &line[..line.len().min(100)]);
-                    return Err(e.into());
-                }
-            }
+            
+            let msg: ParsedMessage = serde_json::from_str(&line)?;
+            messages.push(msg);
         }
-
-        info!("NDJSON parsing complete: {} messages parsed", messages.len());
+        
         Ok(messages)
     }
 }

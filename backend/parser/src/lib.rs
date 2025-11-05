@@ -4,7 +4,6 @@
 pub mod types;
 pub mod base_parser;
 pub mod registry_parser;
-pub mod parsers;  // Central parser registration module
 
 // Individual parser implementations
 pub mod csv_parser;
