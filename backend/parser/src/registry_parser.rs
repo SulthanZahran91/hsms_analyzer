@@ -125,26 +125,49 @@ impl ParserRegistry {
         }
     }
     
-    /// Parse with explicit format hint (filename extension)
+    /// Parse by trying each parser until one succeeds
     pub fn parse_with_hint(
         &self,
         reader: Box<dyn Read>,
         filename: &str,
     ) -> Result<Vec<ParsedMessage>, ParseError> {
-        info!("Parsing file with hint: {}", filename);
+        info!("Parsing file: {}", filename);
+        info!("Will try all parsers in sequence until one succeeds");
 
-        // Extract extension
-        let extension = filename.rsplit('.').next().unwrap_or("");
-        debug!("Extracted extension: '{}'", extension);
+        // Read all data into memory so we can retry with different parsers
+        let mut data = Vec::new();
+        let mut reader = reader;
+        reader.read_to_end(&mut data)?;
+        debug!("Read {} bytes from file", data.len());
 
-        if let Some(parser) = self.get_parser_by_extension(extension) {
-            info!("Using parser '{}' for file '{}'", parser.name(), filename);
-            parser.parse(reader)
-        } else {
-            warn!("No parser found for extension '{}', falling back to auto-detection", extension);
-            // Fall back to auto-detection
-            self.parse_auto(reader)
+        // Try each parser in sequence
+        let mut last_error = None;
+        for parser in &self.parsers {
+            info!("Trying parser: {}", parser.name());
+
+            // Create a fresh cursor for each attempt
+            let cursor = Box::new(Cursor::new(data.clone()));
+
+            match parser.parse(cursor) {
+                Ok(messages) => {
+                    info!("Successfully parsed {} messages with parser '{}'", messages.len(), parser.name());
+                    return Ok(messages);
+                }
+                Err(e) => {
+                    warn!("Parser '{}' failed: {}", parser.name(), e);
+                    last_error = Some(e);
+                }
+            }
         }
+
+        // All parsers failed
+        error!("All parsers failed to parse file '{}'", filename);
+        Err(last_error.unwrap_or_else(|| {
+            ParseError::Io(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "No parsers available"
+            ))
+        }))
     }
 }
 
